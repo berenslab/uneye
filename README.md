@@ -5,13 +5,17 @@ Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep n
 
 uneye is a Python 3 package, that uses [pytorch](http://pytorch.org) for the neural network implementation.
 
-U'n'Eye is a neural network for the detection of saccades and other eye movements. For a description of the algorithm, see <link to bioarxiv>
+U'n'Eye is a neural network for the detection of saccades and other eye movements. 
+For a description of the algorithm, see (link to bioarxiv).
 
-We provide weights that were learned on different datasets. The weights can be found in the folder **training** and the corresponding datasets in the folder **data**. 
+For any questions regarding this repository please contact [marie-estelle.bellet@student.uni-tuebingen.de](mailto:marie-estelle.bellet@student.uni-tuebingen.de) or [philipp.berens@uni-tuebingen.de](philipp.berens@uni-tuebingen.de).
+
+We provide network weights that were learned on different datasets. The weights can be found in the folder **training** and the corresponding datasets will be available in the folder **data** after publication. 
 
 Users can train their own network to obtain optimal performance. Please see the module description below and the example jupyter notebook **UnEye.ipynb** for instructions.
 
-We provide a [docker](http://docker.com) container for platform-independent use. Under Mac OS and Ubuntu, you can alternatively install the package on your local computer. Use either installation A or B.
+We provide a [docker](http://docker.com) container for platform-independent use. Under Mac OS and Ubuntu, you can alternatively install the package on your local computer. As the network is based on PyTorch, using it locally on Windows is not straightforward. We will add a description in the future. For now, please use the docker solution if you are working on Windows.
+
 
 
 ## Installation A): Docker
@@ -87,6 +91,8 @@ min*_*sacc_dur: minimum saccade duration in ms for removal of small events
 
 Train the network weights with your own training data. It is recommended to label at least 500 seconds of data. Arrange the data into a matrix of _samples*timebins_ or input them as a vector of length _timebins_ . In case you arrange the data into a matrix, the time length of each sample should be at least 1000 ms.
 
+During training, the current iteration and maximum number of iterations will be shown. Note that training stops earlier most of the times.
+
 	model.train(X,Y,Labels)
 
 X,Y : horizontal and vertical eye positions, array-like, shape: {(nsamples, nbins) or (nbins)}
@@ -153,7 +159,7 @@ Probability: softmax probability output of network, shape: {n_samples,classes,ti
 
 An example jupyter notebook is provided in this repository (**UnEye.ipynb**).
 
-Depending whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
+Depending on whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
 
 ### Docker
 
@@ -180,23 +186,21 @@ With the .py file **UnEye.py** you can use the package from the command line.
 
 Input arguments (*=necessary):
 
-**Xfilename***: filename of the horizontal eye position (.mat file)
+**x***: filename of the horizontal eye position (.csv or .mat file)
 
-**Yfilename***: filename of the vertical eye position (.mat file)
+**y***: filename of the vertical eye position (.csv or .mat file)
+
+**labels**(*for training): filename of the eye movement ground truth labels (.csv or .mat file)
 
 **sampfreq***: sampling frequency of the data (Hz)
 
-**Saccfilename**: filename of the saccade ground truth labels (.mat file)
+**classes**: number of target classes to predict, default: 2
 
-**iter**: number of interations during training, default:200
-
-**n_classes**: number of target classes to predict, default: 2
-
-**weightsname**: filename of trained weights
+**weightsname**: ouput/input filename of trained weights
 
 ***
 
-
+first run the following, depending on whether you use the Docker container or work locally:
 ### Docker
 
 	cd /YourWorkingDirectory
@@ -204,24 +208,23 @@ Input arguments (*=necessary):
 ### Local
 
 	cd /YourWorkingDirectory
-Note: /YourWorkingDirectory **must contain the .py file UEye.py** from this repo.
+	alias python=python3
+Note: /YourWorkingDirectory **must contain the .py file UnEye.py** from this repo.
 ***	
 
-From the command line, users can either **Training:** 
+Now you can either **train** a new network or **predict** eye movements from new data:
 
-	python UEye.py -m train -x data/Xfilename -y data/Yfilename -s data/Saccfilename -f sampfreq
+**Training:** 
+
+	python UEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
 Note: In this example the files are located in the directory _/YourWorkingDirectory/data_
 
 The trained weights will be saves to _training/weights_ or to _training/weightsname_ if the argument _-w weightsname_ is given.
 
-**Test:**
-
-	python UEye.py -m train -x data/Xfile -y data/Yfile -s data/Saccfile -f sampfreq
-Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
 
 **Prediction:**
 
-	python UEye.py -m train -x data/Xfile -y data/Yfile -f sampfreq
+	python UEye.py -m train -x data/x_name -y data/y_name -f sampfreq
 
 Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
 
