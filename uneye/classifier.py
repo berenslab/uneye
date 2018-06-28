@@ -12,7 +12,6 @@ from skimage.measure import label
 from scipy.signal import resample
 from scipy import io
 from IPython import display
-from ipywidgets import Output
 import matplotlib.pyplot as plt
 # Pytorch imports:
 import torch
