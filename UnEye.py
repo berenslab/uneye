@@ -106,7 +106,7 @@ def main(argv):
         if kappa<0.7:
             print("Bad performance can be due to an insufficient size of the training set, high noise in the data or incorrect labels. Check your data and contact us for support.")
 
-        return kappa,f1,on,off #return performance measures    
+        return kappa,f1,np.mean(np.abs(on)),np.mean(np.abs(off)) #return performance measures    
     
     ##### Prediction mode #####
     elif mode=='predict':

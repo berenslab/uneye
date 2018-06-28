@@ -119,7 +119,7 @@ class DNN():
      
         # validation and training set
         # 50 samples of training data used for validation
-        n_validation = 10 #fixed number of validation samples independent of number of training samples
+        n_validation = 50 #fixed number of validation samples independent of number of training samples
         n_training = n_samples - n_validation
         Xval = X[:n_validation,:]
         Yval = Y[:n_validation,:]

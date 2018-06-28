@@ -31,9 +31,9 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 [Mac OS](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
 [Ubuntu](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
  
-**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 2.7 GB.
+**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1.2 GB.
 
-    docker pull marieestelle/bellet_dnn:v-0.1
+    docker pull marieestelle/bellet_uneye:v-0.1
 
 
 
