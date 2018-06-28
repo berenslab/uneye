@@ -273,7 +273,7 @@ class DNN():
             if getting_worse>3:
                 # stop the training if the loss is increasing for the validation set
                 self.net.load_state_dict(uneye_weights) #get back best weights
-                print('Early stopping at epoch '+str(epoch-1)+' because overfitting was detected.s')
+                print('Early stopping at epoch '+str(epoch-1)+' before overfitting occurred.')
                 epoch = self.max_iter+1 
             epoch += 1
   
