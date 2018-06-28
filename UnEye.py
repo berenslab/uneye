@@ -82,12 +82,20 @@ def main(argv):
         
         print('########### TEST ###########')
         _,_,perf = model.test(Xtrain,Ytrain,Ltrain)
+        # print performance 
         kappa = perf['kappa']
+        f1 = perf['f1']
+        on = perf['on']*1000/sampfreq
+        off = perf['off']*1000/sampfreq
         print(ntest,'samples used for testing.')
         print("Performance (Cohen's kappa) on test set:",kappa)
+        print("Performance (F1) on test set:",f1)
+        print("Performance (onset difference) on test set:",on)
+        print("Performance (offset difference) on test set:",off)
         if kappa<0.7:
             print("Bad performance can be due to an insufficient size of the training set, high noise in the data or incorrect labels. Check your data and contact us for support.")
-            
+
+        return kappa,f1,on,off #return performance measures    
     
     ##### Prediction mode #####
     elif mode=='predict':
