@@ -1,4 +1,4 @@
-import ueye
+import uneye
 import numpy as np
 from scipy import io
 import sys, getopt, ast
@@ -42,7 +42,7 @@ def main(argv):
 
 
     if mode=='hello':
-        print('You successfully installed UEye.')
+        print('You successfully installed uneye.')
         sys.exit(2)
         
     ##### Training mode #####
@@ -55,7 +55,7 @@ def main(argv):
             print('Labels: ', L)
             print('sampling frequency: ',sampfreq)
         except:
-            print('Missing input arguments: UnEye.py -x <xfile> -y <yfile> -s <saccfile> -f <samplingfreq>')
+            print('At least one input argument is missing: UnEye.py -x <xfile> -y <yfile> -l <saccfile> -f <samplingfreq>')
             sys.exit(2)
         print('weights file: ',weights)
 
@@ -66,7 +66,18 @@ def main(argv):
         # MATLAB 
         elif X.endswith('mat'):
             X,Y,Labels = io.loadmat(X)['X'],io.loadmat(Y)['Y'],io.loadmat(L)['Sacc']
-        
+
+        # check if data has right dimensions (2)
+        xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
+        if any((xdim!=2,ydim!=2,ldim!=2)):
+            # reshape into matrix with trials of length=1sec
+            trial_len = int(1000 * sampfreq/1000)
+            time_points = len(X)
+            n_trials = int(time_points/trial_len)
+            X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
+            Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
+            Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
+            
         # split data into training and test set (90% vs 10%)
         randind = np.random.permutation(X.shape[0])
         ntrain = int(X.shape[0]*0.9)
@@ -75,7 +86,7 @@ def main(argv):
         Xtest,Ytest,Ltest = X[randind[ntrain:],:],Y[randind[ntrain:],:],Labels[randind[ntrain:],:]
         
         print('Starting training. Please wait.')
-        model = ueye.DNN(weights_name=weights,sampfreq=sampfreq,
+        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq,
                         classes=classes)
 
         model.train(Xtrain,Ytrain,Ltrain)
@@ -85,13 +96,13 @@ def main(argv):
         # print performance 
         kappa = perf['kappa']
         f1 = perf['f1']
-        on = perf['on']*1000/sampfreq
-        off = perf['off']*1000/sampfreq
+        on = np.array(perf['on'])*1000.0/float(sampfreq)
+        off = np.array(perf['off'])*1000.0/float(sampfreq)
         print(ntest,'samples used for testing.')
         print("Performance (Cohen's kappa) on test set:",kappa)
         print("Performance (F1) on test set:",f1)
-        print("Performance (onset difference) on test set:",on)
-        print("Performance (offset difference) on test set:",off)
+        print("Performance (onset difference) on test set:",np.mean(np.abs(on)))
+        print("Performance (offset difference) on test set:",np.mean(np.abs(off)))
         if kappa<0.7:
             print("Bad performance can be due to an insufficient size of the training set, high noise in the data or incorrect labels. Check your data and contact us for support.")
 
@@ -118,7 +129,7 @@ def main(argv):
         elif X.endswith('mat'):
             Xarr,Yarr = io.loadmat(X)['X'],io.loadmat(Y)['Y']
                 
-        model = ueye.DNN(weights_name=weights,sampfreq=sampfreq,classes=classes)        
+        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq,classes=classes)        
         Prediction,Probability = model.predict(Xarr,Yarr)
         
         # save output

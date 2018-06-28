@@ -83,6 +83,19 @@ class DNN():
         torch.cuda.manual_seed_all(seed) #fixed seed to control random data shuffling in each epoch
         
         classes = self.classes
+
+        # check if data has right dimensions (2)
+        xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
+        if any((xdim!=2,ydim!=2,ldim!=2)):
+            # reshape into matrix with trials of length=1sec
+            trial_len = int(1000 * self.sampfreq/1000)
+            time_points = len(X)
+            n_trials = int(time_points/trial_len)
+            X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
+            Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
+            Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
+
+            
         n_samples,n_time = X.shape
         
         # multi class labels
@@ -589,6 +602,25 @@ class DNN():
             
         
         ''' 
+
+        # check if data has right dimensions (2)
+        xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
+        if any((xdim!=2,ydim!=2,ldim!=2)):
+            # reshape into matrix with trials of length=1sec
+            # training set
+            trial_len = int(1000 * self.sampfreq/1000)
+            time_points = len(X_val)
+            n_trials = int(time_points/trial_len)
+            X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
+            Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
+            Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
+            # validation set
+            time_points = len(X_val)
+            n_trials = int(time_points/trial_len)
+            X_val = np.reshape(X_val[:n_trials*trial_len],(n_trials,trial_len))
+            Y_val = np.reshape(Y_val[:n_trials*trial_len],(n_trials,trial_len))
+            Labels_val = np.reshape(Labels_val[:n_trials*trial_len],(n_trials,trial_len))
+
         n_samples,n_time = X.shape
         classes = self.classes
         
