@@ -1,4 +1,6 @@
-# U'n'Eye
+
+
+![alt text](https://raw.githubusercontent.com/berenslab/uneye/master/logo.jpeg?token=AcbomYi_PxlSK_8ua5zR3m60F5DL5UQJks5bPkWrwA%3D%3D)
 
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
