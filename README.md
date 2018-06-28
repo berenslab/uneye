@@ -24,7 +24,7 @@ We provide a [docker](http://docker.com) container for platform-independent use.
  
 **1)** Pull repo into your local directory:
 
-	git pull https://github.com/berenslab/ueye
+	git pull https://github.com/berenslab/uneye
 	
 **2)** Download and install Docker:
 
@@ -165,7 +165,7 @@ Depending on whether you use U'n'Eye with the docker container or locally, do th
 ### Docker
 
     cd /YourWorkingDirectory
-    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_dnn
+    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye
 
 Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
 
@@ -205,7 +205,7 @@ first run the following, depending on whether you use the Docker container or wo
 ### Docker
 
 	cd /YourWorkingDirectory
-	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_dnn /bin/bash
+	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye /bin/bash
 ### Local
 
 	cd /YourWorkingDirectory
@@ -245,7 +245,7 @@ If you use docker, exit after usage with:
 
 You can add other python modules to the docker container once you pulled the image (as described above). For this, run:
 
-    docker run -it -p 8888:8888 marieestelle/bellet_dnn /bin/bash
+    docker run -it -p 8888:8888 marieestelle/bellet_uneye /bin/bash
     pip install module_name
     
 This installs the python module 'module_name'.
