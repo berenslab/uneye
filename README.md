@@ -2,14 +2,13 @@
 
 ![alt text](https://raw.githubusercontent.com/berenslab/uneye/master/logo.jpeg?token=AcbomYi_PxlSK_8ua5zR3m60F5DL5UQJks5bPkWrwA%3D%3D)
 
+## Deep neural network for the detection of saccades and other eye movements
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
 
 uneye is a Python 3 package, that uses [pytorch](http://pytorch.org) for the neural network implementation.
 
-U'n'Eye is a neural network for the detection of saccades and other eye movements. 
 For a description of the algorithm, see (link to bioarxiv).
-
 For any questions regarding this repository please contact [marie-estelle.bellet@student.uni-tuebingen.de](mailto:marie-estelle.bellet@student.uni-tuebingen.de) or [philipp.berens@uni-tuebingen.de](philipp.berens@uni-tuebingen.de).
 
 We provide network weights that were learned on different datasets. The weights can be found in the folder **training** and the corresponding datasets will be available in the folder **data** after publication. 
