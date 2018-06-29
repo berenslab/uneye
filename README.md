@@ -2,7 +2,7 @@
 
 ![alt text](https://raw.githubusercontent.com/berenslab/uneye/master/logo.jpeg?token=AcbomYi_PxlSK_8ua5zR3m60F5DL5UQJks5bPkWrwA%3D%3D)
 
-## Deep neural network for the detection of saccades and other eye movements
+## U'n'Eye: Deep neural network for the detection of saccades and other eye movements
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
 
