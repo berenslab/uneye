@@ -32,7 +32,7 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 [Mac OS](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
 [Ubuntu](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
  
-**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1.2 GB.
+**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1.9 GB.
 
     docker pull marieestelle/bellet_uneye:v-0.1
 
@@ -165,7 +165,7 @@ Depending on whether you use U'n'Eye with the docker container or locally, do th
 ### Docker
 
     cd /YourWorkingDirectory
-    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye
+    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye:v-0.1
 
 Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
 
