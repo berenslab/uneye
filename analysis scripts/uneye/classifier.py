@@ -12,7 +12,6 @@ from skimage.measure import label
 from scipy.signal import resample
 from scipy import io
 from IPython import display
-from ipywidgets import Output
 import matplotlib.pyplot as plt
 # Pytorch imports:
 import torch
@@ -44,15 +43,13 @@ class DNN():
     min_sacc_dist: int, minimum distance between two saccades in ms for merging of saccades, default=1
     
     min_sacc_dur: int, minimum saccade duration in ms for removal of small events, default=1
-    
-    threshold: float, softmax threshold for saccade class, default=0.5, only for binary classification
-    
+        
     
     '''
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
-                 min_sacc_dur=1,threshold=0.5):
+                 min_sacc_dur=1):
         
         if max_iter<10:
             max_iter = 10
@@ -63,7 +60,6 @@ class DNN():
         self.classes = classes
         self.min_sacc_dist = min_sacc_dist
         self.min_sacc_dur = min_sacc_dur
-        self.threshold = threshold
         self.net = UNet(classes)
         self.use_gpu = torch.cuda.is_available()
 
@@ -86,6 +82,19 @@ class DNN():
         torch.cuda.manual_seed_all(seed) #fixed seed to control random data shuffling in each epoch
         
         classes = self.classes
+
+        # check if data has right dimensions (2)
+        xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
+        if any((xdim!=2,ydim!=2,ldim!=2)):
+            # reshape into matrix with trials of length=1sec
+            trial_len = int(1000 * self.sampfreq/1000)
+            time_points = len(X)
+            n_trials = int(time_points/trial_len)
+            X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
+            Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
+            Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
+
+            
         n_samples,n_time = X.shape
         
         # multi class labels
@@ -109,7 +118,7 @@ class DNN():
      
         # validation and training set
         # 50 samples of training data used for validation
-        n_validation = 10 #fixed number of validation samples independent of number of training samples
+        n_validation = 50 #fixed number of validation samples independent of number of training samples
         n_training = n_samples - n_validation
         Xval = X[:n_validation,:]
         Yval = Y[:n_validation,:]
@@ -264,7 +273,7 @@ class DNN():
             if getting_worse>3:
                 # stop the training if the loss is increasing for the validation set
                 self.net.load_state_dict(uneye_weights) #get back best weights
-                print('Early stopping at epoch '+str(epoch-1)+' because overfitting was detected.s')
+                print('Early stopping at epoch '+str(epoch-1)+' before overfitting occurred.')
                 epoch = self.max_iter+1 
             epoch += 1
   
@@ -310,7 +319,6 @@ class DNN():
         Prob: array-like, shape: {(classes, n_timepoints),(n_samples, classes, n_timepoints)}, class probabilits (network softmax output)
         
         '''
-        threshold = self.threshold
         n_dim = len(X.shape)
         classes = self.classes
         if n_dim==1:
@@ -384,7 +392,6 @@ class DNN():
             if classes==2:
                 Prediction = binary_prediction(Out[:,1,:],
                                                self.sampfreq,
-                                               p=threshold,
                                                min_sacc_dist=self.min_sacc_dist,
                                                min_sacc_dur=int(self.min_sacc_dur/(1000/self.sampfreq)))
                 
@@ -433,7 +440,6 @@ class DNN():
             
         '''
         classes = self.classes
-        threshold = self.threshold
         n_dim = len(X.shape)
         if n_dim==1:
             X = np.atleast_2d(X)
@@ -510,7 +516,6 @@ class DNN():
             if classes==2:
                 Prediction = binary_prediction(Out[:,1,:],
                                                self.sampfreq,
-                                               p=threshold,
                                                min_sacc_dist=self.min_sacc_dist,
                                                min_sacc_dur=int(self.min_sacc_dur/(1000/self.sampfreq)))
                 Probability = Out[:,1,:]
@@ -562,7 +567,7 @@ class DNN():
         return Pred, Prob, Performance
     
     
-    def crossvalidate(self,X,Y,Labels,X_val,Y_val,Labels_val,Labels_test=None,K=10,threshold=0.5):
+    def crossvalidate(self,X,Y,Labels,X_val,Y_val,Labels_val,Labels_test=None,K=10):
         '''
         Use K-fold cross validation.
         Measuring performance in terms of Cohen's Kappa, F1 and AUROC.
@@ -580,9 +585,7 @@ class DNN():
         Labels_test: array-like, shape: {(n_timepoints),(n_samples, n_timepoints)}, if test Labels different from training labels (for training with missing labels only), optional
         
         K: float, number of folds of cross validation
-        
-        threshold: softmax threshold for saccade class, default=0.5 (only needed for binary predictions)
-        
+                
         
         Output
         ------
@@ -598,6 +601,25 @@ class DNN():
             
         
         ''' 
+
+        # check if data has right dimensions (2)
+        xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
+        if any((xdim!=2,ydim!=2,ldim!=2)):
+            # reshape into matrix with trials of length=1sec
+            # training set
+            trial_len = int(1000 * self.sampfreq/1000)
+            time_points = len(X_val)
+            n_trials = int(time_points/trial_len)
+            X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
+            Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
+            Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
+            # validation set
+            time_points = len(X_val)
+            n_trials = int(time_points/trial_len)
+            X_val = np.reshape(X_val[:n_trials*trial_len],(n_trials,trial_len))
+            Y_val = np.reshape(Y_val[:n_trials*trial_len],(n_trials,trial_len))
+            Labels_val = np.reshape(Labels_val[:n_trials*trial_len],(n_trials,trial_len))
+
         n_samples,n_time = X.shape
         classes = self.classes
         
@@ -842,7 +864,6 @@ class DNN():
             if self.classes==2:
                 Prediction = binary_prediction(out_test[:,1,:].data.cpu().numpy(),
                                                self.sampfreq,
-                                               p=threshold,
                                                min_sacc_dist=self.min_sacc_dist,
                                                min_sacc_dur=int(self.min_sacc_dur/(1000/self.sampfreq)))
             else:
