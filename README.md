@@ -217,7 +217,7 @@ Now you can either **train** a new network or **predict** eye movements from new
 
 **Training:** 
 
-	python UEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
+	python UnEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
 Note: In this example the files are located in the directory _/YourWorkingDirectory/data_
 
 The trained weights will be saves to _training/weights_ or to _training/weightsname_ if the argument _-w weightsname_ is given.
@@ -225,7 +225,7 @@ The trained weights will be saves to _training/weights_ or to _training/weightsn
 
 **Prediction:**
 
-	python UEye.py -m train -x data/x_name -y data/y_name -f sampfreq
+	python UnEye.py -m train -x data/x_name -y data/y_name -f sampfreq
 
 Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
 
