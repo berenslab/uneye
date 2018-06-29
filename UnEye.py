@@ -140,7 +140,9 @@ def main(argv):
                 io.savemat(parent+'/Labels_prob',{'Prob':Probability})
             elif X.endswith('csv'):
                 np.savetxt(parent+"/Labels_pred.csv", Prediction, delimiter=",")
-                np.savetxt(parent+"/Labels_prob.csv", Probability, delimiter=",")
+                # one probability file per class
+                for c in range(classes):
+                    np.savetxt(parent+"/Labels_prob_"+"class"+str(c)+".csv", Probability[:,c,:], delimiter=",")
             print('Saccade prediction saved to '+parent)
                    
     else:
