@@ -9,10 +9,8 @@ import numpy as np
 import os
 import math
 from skimage.measure import label
-from scipy.signal import resample
 from scipy import io
 from IPython import display
-import matplotlib.pyplot as plt
 # Pytorch imports:
 import torch
 import torch.nn as nn
@@ -841,22 +839,6 @@ class DNN():
                     
                 epoch += 1
                 
-            ## plot learning curves
-            #f = plt.figure(figsize=(8,3))
-            #ax1 = f.add_subplot(121)
-            #plt.plot(Loss_train,'k')
-            #plt.xlabel('epoch')
-            #plt.ylabel('loss')
-            #ax1.set_title('training set')
-            #
-            #ax2 = f.add_subplot(122)
-            #plt.plot(L,'k')
-            #plt.xlabel('epoch')
-            #plt.ylabel('loss')
-            #ax2.set_title('test set')
-            #plt.tight_layout()
-            #plt.show()
-            
             # Evaluate on test set
             self.net.eval()
             out_test = self.net(Vtest,key)[0]

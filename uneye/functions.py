@@ -7,7 +7,6 @@ import numpy as np
 import os
 from skimage.measure import label
 from sklearn import metrics
-from scipy.signal import resample
 from scipy import io
 from IPython import display
 # Pytorch imports:

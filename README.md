@@ -205,7 +205,7 @@ first run the following, depending on whether you use the Docker container or wo
 ### Docker
 
 	cd /YourWorkingDirectory
-	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye /bin/bash
+	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye:v-0.1 /bin/bash
 ### Local
 
 	cd /YourWorkingDirectory
