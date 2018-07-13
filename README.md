@@ -56,6 +56,100 @@ If the git pull command does not work under Mac OS, first run
 	xcode-select --install
 
 
+## Usage
+
+	model = uneye.DNN(sampfreq= sampling_frequency )
+	model.train(X,Y,Labels)
+	model.test(X,Y,Labels)
+	model.predict(X,Y)
+	
+Generally, one first calls the network and can then apply different methods, as described in the module description below.
+
+### - with Jupyter Notebook
+
+An example jupyter notebook is provided in this repository (**UnEye.ipynb**).
+
+Depending on whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
+
+#### Docker
+
+    cd /YourWorkingDirectory
+    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye:v-0.1
+
+Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
+
+#### Local
+
+
+	alias python=python3
+	cd /YourWorkingDirectory
+	jupyter notebook
+
+
+To stop jupyter notebook, press **Ctrl + C** .
+
+
+
+
+### - from command line
+With the .py file **UnEye.py** you can use the package from the command line. So far it takes the following input arguments:
+
+***
+
+Input arguments (*=necessary):
+
+**x***: filename of the horizontal eye position (.csv or .mat file)
+
+**y***: filename of the vertical eye position (.csv or .mat file)
+
+**labels**(*for training): filename of the eye movement ground truth labels (.csv or .mat file)
+
+**sampfreq***: sampling frequency of the data (Hz)
+
+**classes**: number of target classes to predict, default: 2
+
+**weightsname**: ouput/input filename of trained weights
+
+***
+
+first run the following, depending on whether you use the Docker container or work locally:
+#### Docker
+
+	cd /YourWorkingDirectory
+	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye:v-0.1 /bin/bash
+#### Local
+
+	cd /YourWorkingDirectory
+	alias python=python3
+Note: /YourWorkingDirectory **must contain the .py file UnEye.py** from this repo.
+
+
+Now you can either **train** a new network or **predict** eye movements from new data:
+
+**Training:** 
+
+	python UnEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
+Note: In this example the files are located in the directory _/YourWorkingDirectory/data_
+
+The trained weights will be saves to _training/weights_ or to _training/weightsname_ if the argument _-w weightsname_ is given.
+
+
+**Prediction:**
+
+	python UnEye.py -m train -x data/x_name -y data/y_name -f sampfreq
+
+Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
+
+The predicted saccade probability and the binary prediction are saved to _data/Sacc_prob_ and _data/Sacc_pred_ respectively.
+
+***
+If you use docker, exit after usage with:
+
+	exit
+
+
+
+
 ## Module description
 
 The uneye module contains the **DNN** class 
@@ -63,7 +157,7 @@ The uneye module contains the **DNN** class
 	model = uneye.DNN(max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
-                 min_sacc_dur=1,threshold=0.5)
+                 min_sacc_dur=6,augmentation=True)
                 
    
    -----
@@ -83,6 +177,8 @@ classes: number of target classes to predict
 min*_*sacc_dist: minimum distance between two saccades in ms for merging of saccades
 
 min*_*sacc_dur: minimum saccade duration in ms for removal of small events
+
+augmentation: whether or not to use data augmentation for training, default: True
 
 *** 
 	
@@ -154,91 +250,7 @@ Probability: softmax probability output of network, shape: {n_samples,classes,ti
 
 
 
-***
-***
-## Usage: with Jupyter Notebook
 
-An example jupyter notebook is provided in this repository (**UnEye.ipynb**).
-
-Depending on whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
-
-### Docker
-
-    cd /YourWorkingDirectory
-    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye:v-0.1
-
-Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
-
-### Local
-
-
-	alias python=python3
-	cd /YourWorkingDirectory
-	jupyter notebook
-
-
-To stop jupyter notebook, press **Ctrl + C** .
-
-
-## Usage: from command line
-With the .py file **UnEye.py** you can use the package from the command line. 
-
-***
-
-Input arguments (*=necessary):
-
-**x***: filename of the horizontal eye position (.csv or .mat file)
-
-**y***: filename of the vertical eye position (.csv or .mat file)
-
-**labels**(*for training): filename of the eye movement ground truth labels (.csv or .mat file)
-
-**sampfreq***: sampling frequency of the data (Hz)
-
-**classes**: number of target classes to predict, default: 2
-
-**weightsname**: ouput/input filename of trained weights
-
-***
-
-first run the following, depending on whether you use the Docker container or work locally:
-### Docker
-
-	cd /YourWorkingDirectory
-	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye:v-0.1 /bin/bash
-### Local
-
-	cd /YourWorkingDirectory
-	alias python=python3
-Note: /YourWorkingDirectory **must contain the .py file UnEye.py** from this repo.
-***	
-
-Now you can either **train** a new network or **predict** eye movements from new data:
-
-**Training:** 
-
-	python UnEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
-Note: In this example the files are located in the directory _/YourWorkingDirectory/data_
-
-The trained weights will be saves to _training/weights_ or to _training/weightsname_ if the argument _-w weightsname_ is given.
-
-
-**Prediction:**
-
-	python UnEye.py -m train -x data/x_name -y data/y_name -f sampfreq
-
-Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
-
-The predicted saccade probability and the binary prediction are saved to _data/Sacc_prob_ and _data/Sacc_pred_ respectively.
-
-***
-If you use docker, exit after usage with:
-
-	exit
-
-
-
-    
 ## Further use
 
 **Adding other python modules to the docker container**
