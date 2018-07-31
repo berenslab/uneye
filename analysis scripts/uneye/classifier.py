@@ -40,14 +40,16 @@ class DNN():
     
     min_sacc_dist: int, minimum distance between two saccades in ms for merging of saccades, default=1
     
-    min_sacc_dur: int, minimum saccade duration in ms for removal of small events, default=1
+    min_sacc_dur: int, minimum saccade duration in ms for removal of small events, default=6ms
         
+    augmentation: bool, whether or not to use data augmentation for training. Default: True
     
     '''
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
-                 min_sacc_dur=1):
+                 min_sacc_dur=6,augmentation=True,
+                 ks=5,mp=5):
         
         if max_iter<10:
             max_iter = 10
@@ -58,7 +60,8 @@ class DNN():
         self.classes = classes
         self.min_sacc_dist = min_sacc_dist
         self.min_sacc_dur = min_sacc_dur
-        self.net = UNet(classes)
+        self.augmentation = augmentation
+        self.net = UNet(classes,ks,mp)
         self.use_gpu = torch.cuda.is_available()
 
     def train(self,X,Y,Labels,seed=1):
@@ -125,17 +128,18 @@ class DNN():
         Ytrain = Y[n_validation:,:]
         Ltrain = Labels[n_validation:,:]
 
-        # data augmentation: signal rotation
-        theta = np.arange(0.25,2,0.5)
-        r = np.sqrt(Xtrain**2+Ytrain**2)
-        x = Xtrain.copy()
-        y = Ytrain.copy()
-        for t in theta:
-            x2 = x.copy()*math.cos(np.pi * t) + y.copy()*math.sin(np.pi * t)
-            y2 = -x.copy()*math.sin(np.pi * t) + y.copy()*math.cos(np.pi * t)
-            Xtrain = np.concatenate((Xtrain.copy(),x2),0)
-            Ytrain = np.concatenate((Ytrain.copy(),y2),0)
-            Ltrain = np.concatenate((Ltrain,Ltrain),0)
+        if self.augmentation==True:
+            # data augmentation: signal rotation
+            theta = np.arange(0.25,2,0.5)
+            r = np.sqrt(Xtrain**2+Ytrain**2)
+            x = Xtrain.copy()
+            y = Ytrain.copy()
+            for t in theta:
+                x2 = x.copy()*math.cos(np.pi * t) + y.copy()*math.sin(np.pi * t)
+                y2 = -x.copy()*math.sin(np.pi * t) + y.copy()*math.cos(np.pi * t)
+                Xtrain = np.concatenate((Xtrain.copy(),x2),0)
+                Ytrain = np.concatenate((Ytrain.copy(),y2),0)
+                Ltrain = np.concatenate((Ltrain,Ltrain),0)
 
                           
         n_training = Xtrain.shape[0]
@@ -248,9 +252,9 @@ class DNN():
             for param in self.net.parameters():
                 reg_loss_val += torch.sum(param**2) #L2 penalty
             loss_val += l2_lambda * reg_loss_val
-            Loss_val.append(loss_val.data[0])
+            Loss_val.append(loss_val.data.numpy())
             if len(Loss_val)>3:
-                if Loss_val[-1]<np.mean(Loss_val[-4:-1]): #validation performance better than average over last 3
+                if Loss_val[-1]<float(np.mean(Loss_val[-4:-1])): #validation performance better than average over last 3
                     getting_worse = 0
                     if Loss_val[-1]<best_loss:
                         best_loss = Loss_val[-1]

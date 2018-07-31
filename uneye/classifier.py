@@ -48,7 +48,8 @@ class DNN():
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
-                 min_sacc_dur=6,augmentation=True):
+                 min_sacc_dur=6,augmentation=True,
+                 ks=5,mp=5):
         
         if max_iter<10:
             max_iter = 10
@@ -60,7 +61,7 @@ class DNN():
         self.min_sacc_dist = min_sacc_dist
         self.min_sacc_dur = min_sacc_dur
         self.augmentation = augmentation
-        self.net = UNet(classes)
+        self.net = UNet(classes,ks,mp)
         self.use_gpu = torch.cuda.is_available()
 
     def train(self,X,Y,Labels,seed=1):
@@ -251,7 +252,7 @@ class DNN():
             for param in self.net.parameters():
                 reg_loss_val += torch.sum(param**2) #L2 penalty
             loss_val += l2_lambda * reg_loss_val
-            Loss_val.append(loss_val.data[0])
+            Loss_val.append(loss_val.data.numpy())
             if len(Loss_val)>3:
                 if Loss_val[-1]<float(np.mean(Loss_val[-4:-1])): #validation performance better than average over last 3
                     getting_worse = 0
