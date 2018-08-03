@@ -32,9 +32,9 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 [Mac OS](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
 [Ubuntu](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
  
-**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1.9 GB.
+**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1 GB.
 
-    docker pull marieestelle/bellet_uneye:v-0.2
+    docker pull mebellet/uneye:v-0.2
 
 
 
@@ -74,7 +74,7 @@ Depending on whether you use U'n'Eye with the docker container or locally, do th
 #### Docker
 
     cd /YourWorkingDirectory
-    docker run -it --rm -p 8888:8888 -v $(pwd)/.:/home/jovyan marieestelle/bellet_uneye:v-0.1
+    docker run -it --rm -p 8888:8888 --name uneye -v $(pwd)/.:/home/jovyan mebellet/uneye:v-0.2
 
 Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
 
@@ -116,7 +116,7 @@ first run the following, depending on whether you use the Docker container or wo
 #### Docker
 
 	cd /YourWorkingDirectory
-	docker run -it -p 8888:8888 -v $(PWD)/:/home/jovyan marieestelle/bellet_uneye:v-0.1 /bin/bash
+	docker run -it -p 8888:8888 --name uneye -v $(PWD)/:/home/jovyan mebellet/uneye:v-0.2 /bin/bash
 #### Local
 
 	cd /YourWorkingDirectory
@@ -257,10 +257,18 @@ Probability: softmax probability output of network, shape: {n_samples,classes,ti
 
 You can add other python modules to the docker container once you pulled the image (as described above). For this, run:
 
-    docker run -it -p 8888:8888 marieestelle/bellet_uneye /bin/bash
+    docker run -it -p 8888:8888 --name uneye mebellet/uneye:v-0.2 /bin/bash
     pip install module_name
     
+    
 This installs the python module 'module_name'.
+Exit the container by pressing Control+p and Control+q, then commit the changes to the image:
+
+	docker commit uneye mebellet/uneye:v-0.2
+	
+	
+	
+	
 
 You are now in your docker environment and can execute jupyter notebook with the following command:
 
