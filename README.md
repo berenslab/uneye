@@ -7,6 +7,7 @@ Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep n
 ********
 ## Latest Updates:
 - network trained on three combined datasets (generalization to different types of data)
+- kernel size of convolution and max pooling operations now definable by the user (thus longer or shorter time windows will be seen by U'n'Eye)
 
 ------------------
 ## <a name="content">Content</a> 
@@ -173,7 +174,8 @@ The uneye module contains the **DNN** class
 	model = uneye.DNN(max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
-                 min_sacc_dur=6,augmentation=True)
+                 min_sacc_dur=6,augmentation=True,
+                 ks=5,mp=5)
                 
    
    -----
@@ -195,6 +197,10 @@ min*_*sacc_dist: minimum distance between two saccades in ms for merging of sacc
 min*_*sacc_dur: minimum saccade duration in ms for removal of small events
 
 augmentation: whether or not to use data augmentation for training, default: True
+
+ks: kernel size of convolution operations, default=5
+
+mp: size of max pooling operation, default=5
 
 *** 
 	
