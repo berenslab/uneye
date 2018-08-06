@@ -2,11 +2,24 @@
 
 ![alt text](https://raw.githubusercontent.com/berenslab/uneye/master/logo.jpeg?token=AcbomYi_PxlSK_8ua5zR3m60F5DL5UQJks5bPkWrwA%3D%3D)
 
-## U'n'Eye: Deep neural network for the detection of saccades and other eye movements
+# U'n'Eye: Deep neural network for the detection of saccades and other eye movements
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
+## Latest Updates:
+- network trained on three combined datasets (generalization to different types of data)
 
-uneye is a Python 3 package, that uses [PyTorch](http://pytorch.org) for the neural network implementation.
+------------------
+## <a name="content">Content</a> 
+- [Overview](#overview)
+- [Installation](#installation)
+- [Usage](#usage)
+	- [jupyter notebook](#jupyter)
+	- [command line](#cmd)
+- [Module description](#module)
+- [Further use](#further)
+
+## <a name="overview">Overview</a> 
+U'n'Eye is a Python 3 package, that uses [PyTorch](http://pytorch.org) for the neural network implementation.
 
 For a description of the algorithm, see [our preprint](https://www.biorxiv.org/content/early/2018/06/29/359018).
 For any questions regarding this repository please contact [marie-estelle.bellet@student.uni-tuebingen.de](mailto:marie-estelle.bellet@student.uni-tuebingen.de) or [philipp.berens@uni-tuebingen.de](philipp.berens@uni-tuebingen.de).
@@ -17,9 +30,10 @@ We provide network weights that were learned on different datasets, described in
 
 We provide a [docker](http://docker.com) container for platform-independent use. Under Mac OS and Ubuntu, you can alternatively install the package on your local computer. As the network is based on PyTorch, using it locally on Windows is not straightforward. We will add a description in the future. For now, please use the docker solution if you are working on Windows.
 
+[back to start](#content)
 
-
-## Installation A): Docker
+## <a name="installation">Installation</a> 
+### A): Docker
 **for Mac OS / Ubuntu / Windows**
  
 **1)** Pull repo into your local directory:
@@ -38,7 +52,7 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 
 
 
-## Installation B): Local
+### B): Local
 **for Mac OS & Ubuntu**
 	
 **1)** Check if you have python3
@@ -55,8 +69,10 @@ If the git pull command does not work under Mac OS, first run
 
 	xcode-select --install
 
+[back to start](#content)
 
-## Usage
+## <a name="usage">Usage</a> 
+Genral:
 
 	model = uneye.DNN(sampfreq= sampling_frequency )
 	model.train(X,Y,Labels)
@@ -65,20 +81,20 @@ If the git pull command does not work under Mac OS, first run
 	
 Generally, one first calls the network and can then apply different methods, as described in the module description below.
 
-### - with Jupyter Notebook
+### <a name="jupyter">Jupyter Notebook</a> 
 
 An example jupyter notebook is provided in this repository (**UnEye.ipynb**).
 
 Depending on whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
 
-#### Docker
+#### A) Docker
 
     cd /YourWorkingDirectory
-    docker run -it --rm -p 8888:8888 --name uneye -v $(pwd)/.:/home/jovyan mebellet/uneye:v-0.2
+    docker run -it --rm -p 6688:8888 --name uneye -v $(pwd)/.:/home/jovyan mebellet/uneye:v-0.2
 
-Copy the output " http://localhost:8888... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
+Copy the output " http://localhost:6688... " into your browser. Then you will see the working directory and the jupyter notebook **UnEye.ipynb**.
 
-#### Local
+#### B) Local
 
 
 	alias python=python3
@@ -89,9 +105,9 @@ Copy the output " http://localhost:8888... " into your browser. Then you will se
 To stop jupyter notebook, press **Ctrl + C** .
 
 
+[back to start](#content)
 
-
-### - from command line
+### <a name="cmd">Command line</a> 
 With the .py file **UnEye.py** you can use the package from the command line. So far it takes the following input arguments:
 
 ***
@@ -112,21 +128,21 @@ Input arguments (*=necessary):
 
 ***
 
-first run the following, depending on whether you use the Docker container or work locally:
-#### Docker
+first run the following, depending on whether you use the Docker container or work locally. Note: /YourWorkingDirectory **must contain the .py file UnEye.py** from this repo.
+#### A) Docker
 
 	cd /YourWorkingDirectory
-	docker run -it -p 8888:8888 --name uneye -v $(PWD)/:/home/jovyan mebellet/uneye:v-0.2 /bin/bash
-#### Local
+	docker run -it -p 6688:8888 --name uneye -v $(PWD)/:/home/jovyan mebellet/uneye:v-0.2 /bin/bash
+#### B) Local
 
 	cd /YourWorkingDirectory
 	alias python=python3
-Note: /YourWorkingDirectory **must contain the .py file UnEye.py** from this repo.
+
 
 
 Now you can either **train** a new network or **predict** eye movements from new data:
 
-**Training:** 
+#### Training
 
 	python UnEye.py -m train -x data/x_name -y data/y_name -l data/labels_name -f sampfreq
 Note: In this example the files are located in the directory _/YourWorkingDirectory/data_
@@ -134,7 +150,7 @@ Note: In this example the files are located in the directory _/YourWorkingDirect
 The trained weights will be saves to _training/weights_ or to _training/weightsname_ if the argument _-w weightsname_ is given.
 
 
-**Prediction:**
+#### Prediction
 
 	python UnEye.py -m train -x data/x_name -y data/y_name -f sampfreq
 
@@ -148,9 +164,9 @@ If you use docker, exit after usage with:
 	exit
 
 
+[back to start](#content)
 
-
-## Module description
+## <a name="module">Module description</a> 
 
 The uneye module contains the **DNN** class 
 
@@ -249,15 +265,15 @@ Prediction: eye movement class prediction for each time bin, same shape as input
 Probability: softmax probability output of network, shape: {n_samples,classes,time) or (classes,time)}
 
 
+[back to start](#content)
 
-
-## Further use
+## <a name="further">Further use</a> 
 
 **Adding other python modules to the docker container**
 
 You can add other python modules to the docker container once you pulled the image (as described above). For this, run:
 
-    docker run -it -p 8888:8888 --name uneye mebellet/uneye:v-0.2 /bin/bash
+    docker run -it -p 6688:8888 --name uneye mebellet/uneye:v-0.2 /bin/bash
     pip install module_name
     
     
@@ -266,14 +282,4 @@ Exit the container by pressing Control+p and Control+q, then commit the changes 
 
 	docker commit uneye mebellet/uneye:v-0.2
 	
-	
-	
-	
-
-You are now in your docker environment and can execute jupyter notebook with the following command:
-
-    jupyter notebook
-    
-Or run the package from the command line as previously described.
-
-
+[back to start](#content)
