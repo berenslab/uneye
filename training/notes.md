@@ -6,7 +6,7 @@ Overview of dataset characterstics:
 
 **Dataset 1:** 1000 Hz, eyelink 1000, mainly microsaccades, some memory saccades and blinks.
 
-**Dataset 2:** 1000 Hz, scleral search coild, microsaccades during smooth pursuit task (sinusoidal and linear pursuit).
+**Dataset 2:** 1000 Hz, scleral search coil, microsaccades during smooth pursuit task (sinusoidal and linear pursuit).
 
 **Dataset 3:** 500 Hz, eyelink 1000, very small microsaccades during fixation.
 
