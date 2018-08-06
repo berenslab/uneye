@@ -21,15 +21,15 @@ import torch.optim as optim
 # Neural Network Architecture: #
 ################################
 class UNet(nn.Module):
-    def __init__(self,dim=2):
+    def __init__(self,dim=2,ks=5,mp=5):
         super(UNet,self).__init__()
         ''''
         dim: number of output features
+        ks: kernel size of convolutional operations
+        mp: kernel size of max pooling
         '''
         Ch = [1,10,20,40,dim] # number of features
-        ks = 5 # kernel size of convolutional operations
-        mp = 5 # kernel size of max pooling
-        pd = 2 # number of bins for border padding on each side
+        pd = int((ks-1)/2) # number of bins for border padding on each side
  
         self.c0 = nn.Sequential(
             nn.Conv2d(Ch[0],Ch[1],(ks,2),stride=1,padding=(pd,0)),

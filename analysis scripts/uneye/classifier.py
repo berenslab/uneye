@@ -62,6 +62,7 @@ class DNN():
         self.min_sacc_dur = min_sacc_dur
         self.augmentation = augmentation
         self.net = UNet(classes,ks,mp)
+        self.mp = mp
         self.use_gpu = torch.cuda.is_available()
 
     def train(self,X,Y,Labels,seed=1):
@@ -110,12 +111,12 @@ class DNN():
         Y = Y[randind,:]
         Labels = Labels[randind,:]
         
-        # check if number of timebins is multiple of 25, otherwise cut:
+        # check if number of timebins is multiple of the maxpooling kernel size squared, otherwise cut:
         n_time2 = X.shape[1]
-        if n_time%25!=0:
-            X = X[:,:int(np.floor(n_time/25)*25)]
-            Y = Y[:,:int(np.floor(n_time/25)*25)]
-            Labels = Labels[:,:int(np.floor(n_time/25)*25),:]
+        if n_time%(self.mp**2)!=0:
+            X = X[:,:int(np.floor(n_time/(self.mp**2))*(self.mp**2))]
+            Y = Y[:,:int(np.floor(n_time/(self.mp**2))*(self.mp**2))]
+            Labels = Labels[:,:int(np.floor(n_time/(self.mp**2))*(self.mp**2)),:]
      
         # validation and training set
         # 50 samples of training data used for validation
@@ -376,13 +377,13 @@ class DNN():
             if self.use_gpu:
                 Vbatch = Vbatch.cuda()
                 
-            # check if number of timepoints is a multiple of 25:
-            remaining = n_time2%25
+            # check if number of timepoints is a multiple of the maxpooling kernel size squared:
+            remaining = n_time2%(self.mp**2)
             # if not, evaluate segment-wise and concatenante output
             if remaining!=0:
-                first_time_batch = int(np.floor(n_time2/25)*25)
+                first_time_batch = int(np.floor(n_time2/(self.mp**2))*(self.mp**2))
                 Vbatch1 = Vbatch[:,:,:first_time_batch,:]
-                Vbatch2 = Vbatch[:,:,-25:,:]
+                Vbatch2 = Vbatch[:,:,-(self.mp**2):,:]
                 Out1 = self.net(Vbatch1,['out'])[0].data.cpu().numpy()
                 Out2 = self.net(Vbatch2,['out'])[0].data.cpu().numpy()
                 Out = np.concatenate((Out1,Out2[:,:,-remaining:]),2)
@@ -500,12 +501,12 @@ class DNN():
             if self.use_gpu:
                 Vbatch = Vbatch.cuda()
                 
-            # check if number of timepoints is a multiple of 25:
-            remaining = n_time2%25
+            # check if number of timepoints is a multiple of the maxpooling kernel size squared:
+            remaining = n_time2%(self.mp**2)
             if remaining!=0:
-                first_time_batch = int(np.floor(n_time2/25)*25)
+                first_time_batch = int(np.floor(n_time2/(self.mp**2))*(self.mp**2))
                 Vbatch1 = Vbatch[:,:,:first_time_batch,:]
-                Vbatch2 = Vbatch[:,:,-25:,:]
+                Vbatch2 = Vbatch[:,:,-(self.mp**2):,:]
                 Out1 = self.net(Vbatch1,['out'])[0].data.cpu().numpy()
                 Out2 = self.net(Vbatch2,['out'])[0].data.cpu().numpy()
                 Out = np.concatenate((Out1,Out2[:,:,-remaining:]),2)
@@ -636,8 +637,8 @@ class DNN():
         if Labels_test is None: #if no alternative test labels given, use training labels for testing
             Labels_test = Labels.copy() 
       
-        # check if number of timebins is multiple of 25, otherwise cut:
-        fac = 25
+        # check if number of timebins is multiple of the maxpooling kernel size squared, otherwise cut:
+        fac = (self.mp**2)
         if n_time%fac!=0:
             X = X[:,:int(np.floor(n_time/fac)*fac)]
             Y = Y[:,:int(np.floor(n_time/fac)*fac)]
