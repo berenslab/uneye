@@ -287,7 +287,7 @@ def accuracy (predicted,truth):
     
     '''
     
-    if len(predicted.shape)>1:
+    if len(truth.shape)>1:
         # assume first dimension is number of samples
         batchsize = predicted.shape[0]
     else:
@@ -301,7 +301,7 @@ def accuracy (predicted,truth):
     truth = truth.astype(int)
     pred_copy = predicted.copy()
     
-    # Velocity    
+    # Velocity
     Diff_p = np.diff(predicted,axis=1)
     Diff_t = np.diff(truth,axis=1)
     
