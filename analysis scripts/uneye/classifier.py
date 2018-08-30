@@ -89,7 +89,7 @@ class DNN():
         xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
         if any((xdim!=2,ydim!=2,ldim!=2)):
             # reshape into matrix with trials of length=1sec
-            trial_len = int(1000 * self.sampfreq/1000)
+            trial_len = int(self.sampfreq) #trials of 1 sec
             time_points = len(X)
             n_trials = int(time_points/trial_len)
             X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
