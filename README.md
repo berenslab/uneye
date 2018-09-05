@@ -37,9 +37,9 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 ### A): Docker
 **for Mac OS / Ubuntu / Windows**
  
-**1)** Pull repo into your local directory:
+**1)** Clone repo into your local directory:
 
-	git pull https://github.com/berenslab/uneye
+	git clone https://github.com/berenslab/uneye
 	
 **2)** Download and install Docker:
 
@@ -61,9 +61,9 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 	python3 --version
 If not found, download and install python3 [here](https://www.python.org/downloads/release/python-364/). 
 
-**2)** Pull repo into your local directory and install package:
+**2)** Clone repo into your local directory and install package:
 
-	git pull https://github.com/berenslab/uneye
+	git clone https://github.com/berenslab/uneye
 	alias pip=pip3
 	pip install ./ -r ./requirements.txt
 If the git pull command does not work under Mac OS, first run
