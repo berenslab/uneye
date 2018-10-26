@@ -11,7 +11,7 @@ Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep n
 
 ------------------
 
-<font color="green" size=4> <i>Train your own eye movement detection network in 10 minutes and label your data. [Get started now](#installation)</i></font>
+<span style="color:green"> <i>Train your own eye movement detection network in 10 minutes and label your data. [Get started now](#installation)</i></span>
 
 ## <a name="content">Content</a> 
 - [Overview](#overview)
