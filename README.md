@@ -35,8 +35,7 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 
 [back to start](#content)
 
-## <a name="installation">Installation: [local](#local) [or with docker](#docker)
-</a>
+## <a name="installation">Installation: [local](#local) [or with docker](#docker)</a>
 
 In the following, all commands written in boxes need to be entered into your terminal (search for it via "cmd" on Windows). 
  
