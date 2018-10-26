@@ -257,6 +257,7 @@ class DNN():
             Loss_train.append(np.mean(loss_train)) #store training loss
             #plt.plot(Loss_train)
             #plt.title(str(epoch))
+            print('Training. Please wait.')
             #print('Iteration: '+str(epoch)+'/'+str(self.max_iter))
             #display.clear_output(wait=True)
             
@@ -326,7 +327,7 @@ class DNN():
         
         self.loss_val = Loss_val
         self.loss_train = Loss_train
-        
+
         return self
         
         
