@@ -17,6 +17,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import torch.optim as optim
 from sklearn.metrics import cohen_kappa_score as cohenskappa
+import matplotlib.pyplot as plt
 
 ###############################
 ############ U'n'Eye: ###########
@@ -43,13 +44,17 @@ class DNN():
     min_sacc_dur: int, minimum saccade duration in ms for removal of small events, default=6ms
         
     augmentation: bool, whether or not to use data augmentation for training. Default: True
+
+    inf_correction: float, value to replace Infs occuring after differential of input signal
+
+    val_samples: int, number of validation samples (for early stopping criterion)
     
     '''
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
                  min_sacc_dur=6,augmentation=True,
-                 ks=5,mp=5):
+                 ks=5,mp=5,inf_correction=1.5,val_samples=30):
         
         if max_iter<10:
             max_iter = 10
@@ -64,6 +69,8 @@ class DNN():
         self.net = UNet(classes,ks,mp)
         self.mp = mp
         self.use_gpu = torch.cuda.is_available()
+        self.inf_correction = inf_correction
+        self.val_samples = val_samples
 
     def train(self,X,Y,Labels,seed=1):
         '''
@@ -79,7 +86,7 @@ class DNN():
         
         '''
         # set random seed
-        np.random.seed(1)
+        np.random.seed(seed)
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed) #fixed seed to control random data shuffling in each epoch
         
@@ -120,7 +127,7 @@ class DNN():
      
         # validation and training set
         # 50 samples of training data used for validation
-        n_validation = 50 #fixed number of validation samples independent of number of training samples
+        n_validation = self.val_samples #fixed number of validation samples independent of number of training samples
         n_training = n_samples - n_validation
         Xval = X[:n_validation,:]
         Yval = Y[:n_validation,:]
@@ -149,11 +156,11 @@ class DNN():
         # training data
         Xdiff = np.diff(Xtrain,axis=-1)
         Xdiff = np.concatenate((np.zeros((n_training,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = 1.5
+        Xdiff[np.isinf(Xdiff)] = self.inf_correction
         Xdiff[np.isnan(Xdiff)] = 0
         Ydiff = np.diff(Ytrain,axis=-1)
         Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = 1.5
+        Ydiff[np.isinf(Ydiff)] = self.inf_correction
         Ydiff = np.concatenate((np.zeros((n_training,1)),Ydiff),1)  
         # input matrix:
         V = np.tile((Xdiff,Ydiff),1)
@@ -166,11 +173,11 @@ class DNN():
         # validation data
         Xdiff = np.diff(Xval,axis=-1)
         Xdiff = np.concatenate((np.zeros((n_validation,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = 1.5
+        Xdiff[np.isinf(Xdiff)] = self.inf_correction
         Xdiff[np.isnan(Xdiff)] = 0
         Ydiff = np.diff(Yval,axis=-1)
         Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = 1.5
+        Ydiff[np.isinf(Ydiff)] = self.inf_correction
         Ydiff = np.concatenate((np.zeros((n_validation,1)),Ydiff),1)  
         # input matrix:
         V = np.tile((Xdiff,Ydiff),1)
@@ -196,12 +203,17 @@ class DNN():
         l2_lambda = 0.001 #factor for L2 penalty
         iters = 10 #iterations per epoch
         batchsize = int(np.floor(n_training/iters))
-        
-        # output folder:
-        out_folder = './training'
-        if not os.path.exists(out_folder):
-            os.makedirs(out_folder)
-            
+
+        # check if weights_name is absolute path
+        if os.path.isabs(self.weights_name):
+            output_dir = self.weights_name
+        else:
+            # output folder: local folder called "training"
+            out_folder = './training'
+            if not os.path.exists(out_folder):
+                os.makedirs(out_folder)
+            output_dir = os.path.join(out_folder,self.weights_name)
+
         epoch = 1
         Loss_val = [] #validation loss storage
         Loss_train = [] #training loss storage
@@ -241,7 +253,8 @@ class DNN():
                 optimizer.step()
                 
             Loss_train.append(np.mean(loss_train)) #store training loss
-            
+            #plt.plot(Loss_train)
+            #plt.title(str(epoch))
             print('Iteration: '+str(epoch)+'/'+str(self.max_iter))
             display.clear_output(wait=True)
             
@@ -253,7 +266,10 @@ class DNN():
             for param in self.net.parameters():
                 reg_loss_val += torch.sum(param**2) #L2 penalty
             loss_val += l2_lambda * reg_loss_val
-            Loss_val.append(loss_val.data.numpy())
+            Loss_val.append(loss_val.data.cpu().numpy())
+            #plt.plot(Loss_val)
+            #plt.show()
+            
             if len(Loss_val)>3:
                 if Loss_val[-1]<float(np.mean(Loss_val[-4:-1])): #validation performance better than average over last 3
                     getting_worse = 0
@@ -282,7 +298,14 @@ class DNN():
   
         # validate after training to ensure saving best weights
         out_val = self.net(Vval,key)[0]
-        loss_val = criterion(out_val,Lval).data[0]
+        # added this to convert values to numpy in GPU setting: 
+        if self.use_gpu:
+            # convert from CUDA to cpu memory
+            out_val = out_val.cpu().detach().numpy()
+            loss_val = criterion(out_val,Lval).data[0].cpu().detach().numpy()
+        else:
+            loss_val = criterion(out_val,Lval).data[0]
+            
         if loss_val<best_loss:            
             uneye_weights = self.net.state_dict()
             save_weights = True
@@ -294,8 +317,8 @@ class DNN():
                 for i,k in enumerate(K):
                     uneye_weights[k] = uneye_weights[k].cpu()
                 self.net.cpu()
-            torch.save(uneye_weights,os.path.join(out_folder,self.weights_name))
-            print("Model parameters saved to",os.path.join(out_folder,self.weights_name))
+            torch.save(uneye_weights,output_dir)
+            print("Model parameters saved to",output_dir)
         else:
             print("Model parameters could not be saved due to early overfitting. Try to reduce learning rate or increase number of training samples.")
 
@@ -335,11 +358,11 @@ class DNN():
          # differentiated signal:
         Xdiff = np.diff(X,axis=-1)
         Xdiff = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = 1.5
+        Xdiff[np.isinf(Xdiff)] = self.inf_correction
         Xdiff[np.isnan(Xdiff)] = 0
         Ydiff = np.diff(Y,axis=-1)
         Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = 1.5
+        Ydiff[np.isinf(Ydiff)] = self.inf_correction
         Ydiff = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
         
         # input matrix:
@@ -455,11 +478,11 @@ class DNN():
         # differentiated signal:
         Xdiff = np.diff(X,axis=-1)
         Xdiff = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = 1.5
+        Xdiff[np.isinf(Xdiff)] = self.inf_correction
         Xdiff[np.isnan(Xdiff)] = 0
         Ydiff = np.diff(Y,axis=-1)
         Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = 1.5
+        Ydiff[np.isinf(Ydiff)] = self.inf_correction
         Ydiff = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
         
         # input matrix:
@@ -551,14 +574,20 @@ class DNN():
                 Kappa[c] = kappa
                 print('Cohens Kappa class',c,': ',np.round(kappa,3))
             true_pos,false_pos,false_neg,on_distance,off_distance = accuracy((Pred==1).astype(float),(Labels==1).astype(float))
-        f1 = (2 * true_pos)/(2 * true_pos + false_neg + false_pos)    
+        if true_pos + false_neg + false_pos == 0:
+            f1 = np.nan
+        else:
+            f1 = (2 * true_pos)/(2 * true_pos + false_neg + false_pos)    
         print('F1:',np.round(f1,3))
         
         Performance = {
             'kappa': Kappa,
             'f1': f1,
             'on': on_distance,
-            'off': off_distance
+            'off': off_distance,
+            'true_pos':true_pos,
+            'false_pos':false_pos,
+            'false_neg':false_neg
             }
         
         # if input one dimensional, reduce back to one dimension:
@@ -656,11 +685,11 @@ class DNN():
         # differentiated signal:
         Xdiff = np.diff(X_val,axis=-1)
         Xdiff = np.concatenate((np.zeros((n_val_samp,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = 1.5
+        Xdiff[np.isinf(Xdiff)] = self.inf_correction
         Xdiff[np.isnan(Xdiff)] = 0
         Ydiff = np.diff(Y_val,axis=-1)
         Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = 1.5
+        Ydiff[np.isinf(Ydiff)] = self.inf_correction
         Ydiff = np.concatenate((np.zeros((n_val_samp,1)),Ydiff),1) 
         # input matrix:
         V = np.tile((Xdiff,Ydiff),1)
@@ -817,7 +846,7 @@ class DNN():
                 for param in self.net.parameters():
                     reg_loss_val += torch.sum(param**2) #L2 penalty
                 loss_val += l2_lambda * reg_loss_val
-                L.append(loss_val.data[0])
+                L.append(loss_val.data.cpu().numpy())
                 if len(L)>3:
                     if L[-1]<np.mean(L[-4:-1]): #validation performance better than last
                         getting_worse = 0

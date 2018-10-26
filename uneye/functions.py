@@ -228,7 +228,7 @@ def binary_prediction(output,samp_freq,p=0.5,min_sacc_dist=1,min_sacc_dur=1):
     S_predic: array-like, shape={(n_timepoints), (n_samples,n_timepoints)}, fixation(=0) and saccade(=1) prediction for each time_bin in the network output
     
     '''
-    S_predic = (output>p).astype(int)  
+    S_predic = (output>p).astype(int)
     if min_sacc_dist!=1:
         # merge saccades with distance < min_sacc_dist
         S_predic = merge_saccades(S_predic,samp_freq,min_sacc_dist)
