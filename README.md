@@ -10,6 +10,9 @@ Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep n
 - kernel size of convolution and max pooling operations now definable by the user (thus longer or shorter time windows will be seen by U'n'Eye)
 
 ------------------
+
+<font color="green" size=4> <i>Train your own eye movement detection network in 10 minutes and label your data. [Get started now](#installation)</i></font>
+
 ## <a name="content">Content</a> 
 - [Overview](#overview)
 - [Installation](#installation)
@@ -29,46 +32,52 @@ We provide network weights that were learned on different datasets, described in
 
 **Users can train their own network to obtain optimal performance.** Please see the module description below and the example jupyter notebook **UnEye.ipynb** for instructions.
 
-We provide a [docker](http://docker.com) container for platform-independent use. Under Mac OS and Ubuntu, you can alternatively install the package on your local computer. As the network is based on PyTorch, using it locally on Windows is not straightforward. We will add a description in the future. For now, please use the docker solution if you are working on Windows.
+We provide a [docker](http://docker.com) container for platform-independent use. 
 
 [back to start](#content)
 
 ## <a name="installation">Installation</a> 
-### A): Docker
-**for Mac OS / Ubuntu / Windows**
  
-**1)** Pull repo into your local directory:
+### A): Local: install the python package
 
-	git pull https://github.com/berenslab/uneye
-	
-**2)** Download and install Docker:
-
-[Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
-[Mac OS](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
-[Ubuntu](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) 
- 
-**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time because the docker image has a size of 1 GB.
-
-    docker pull mebellet/uneye:v-0.2
-
-
-
-### B): Local
-**for Mac OS & Ubuntu**
-	
 **1)** Check if you have python3
 
 	python3 --version
 If not found, download and install python3 [here](https://www.python.org/downloads/release/python-364/). 
 
-**2)** Pull repo into your local directory and install package:
+**2)** Clone the GitHub repository into your local directory and make sure you are using pip3.
 
-	git pull https://github.com/berenslab/uneye
+	git clone https://github.com/berenslab/uneye
 	alias pip=pip3
-	pip install ./ -r ./requirements.txt
-If the git pull command does not work under Mac OS, first run
+**3)** Now the last step: install the package. Use one of the following commands, depending on your platform:
+
+For Mac:
+
+	pip install ./ -r ./requirements_mac.txt
+	
+For Windows (7,10 or greater):
+
+	pip install ./ -r ./requirements_wind.txt
+	
+For Linux:
+
+	pip install ./ -r ./requirements_lin.txt
+	
+Note: If the git command does not work under Mac OS, first run
 
 	xcode-select --install
+
+
+### B): Docker: the platform independent solution
+
+**1)** Install docker:
+
+for [Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows), [Mac](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) or [Linux](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
+
+**2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time.
+
+	docker pull mebellet/uneye:v-0.2	
+
 
 [back to start](#content)
 

@@ -103,10 +103,15 @@ def main(argv):
         print("Performance (F1) on test set:",f1)
         print("Performance (onset difference) on test set:",np.mean(np.abs(on)))
         print("Performance (offset difference) on test set:",np.mean(np.abs(off)))
+
+        # save performance file
+        if type(X)==str:
+            parent = os.path.dirname(X)
+            np.savetxt(parent+"/performance.csv", np.array([kappa,f1]), delimiter=",")
         if kappa<0.7:
             print("Bad performance can be due to an insufficient size of the training set, high noise in the data or incorrect labels. Check your data and contact us for support.")
 
-        return kappa,f1,np.mean(np.abs(on)),np.mean(np.abs(off)) #return performance measures    
+        return  
     
     ##### Prediction mode #####
     elif mode=='predict':

@@ -1,0 +1,8 @@
+http://download.pytorch.org/whl/cu92/torch-0.4.1-cp36-cp36m-win_amd64.whl
+torchvision
+numpy
+scipy
+scikit-image
+sklearn
+jupyter
+matplotlib
