@@ -35,11 +35,14 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 
 [back to start](#content)
 
-## <a name="installation">Installation</a> 
- 
-### A): Local: install the python package
+## <a name="installation">Installation: [local](#local) [or with docker](#docker)
+</a>
 
-**1)** Check if you have python3
+In the following, all commands written in boxes need to be entered into your terminal (search for it via "cmd" on Windows). 
+ 
+### <a name="local">Local: install the python package</a>
+
+**1)** Via the terminal, check if you have python3 installed
 
 	python3 --version
 If not found, download and install python3 [here](https://www.python.org/downloads/release/python-364/). 
@@ -67,7 +70,7 @@ Note: If the git command does not work under Mac OS, first run
 	xcode-select --install
 
 
-### B): Docker: the platform independent solution
+### <a name="docker">Docker: the platform independent solution</a>
 
 **1)** Install docker:
 
