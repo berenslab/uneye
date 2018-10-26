@@ -6,7 +6,6 @@
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
 ## Latest Updates:
-- network trained on three combined datasets (generalization to different types of data)
 - kernel size of convolution and max pooling operations now definable by the user (thus longer or shorter time windows will be seen by U'n'Eye)
 
 ------------------
