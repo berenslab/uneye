@@ -8,7 +8,7 @@ import os
 from skimage.measure import label
 from sklearn import metrics
 from scipy import io
-from IPython import display
+#from IPython import display
 # Pytorch imports:
 import torch
 import torch.nn as nn

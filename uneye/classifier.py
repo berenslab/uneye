@@ -10,7 +10,7 @@ import os
 import math
 from skimage.measure import label
 from scipy import io
-from IPython import display
+#from IPython import display
 # Pytorch imports:
 import torch
 import torch.nn as nn
@@ -91,7 +91,9 @@ class DNN():
         torch.cuda.manual_seed_all(seed) #fixed seed to control random data shuffling in each epoch
         
         classes = self.classes
-
+        print('Number of classes:',classes)
+        print('Using GPU:',self.use_gpu)
+        
         # check if data has right dimensions (2)
         xdim,ydim,ldim = X.ndim,Y.ndim,Labels.ndim
         if any((xdim!=2,ydim!=2,ldim!=2)):
@@ -255,8 +257,8 @@ class DNN():
             Loss_train.append(np.mean(loss_train)) #store training loss
             #plt.plot(Loss_train)
             #plt.title(str(epoch))
-            print('Iteration: '+str(epoch)+'/'+str(self.max_iter))
-            display.clear_output(wait=True)
+            #print('Iteration: '+str(epoch)+'/'+str(self.max_iter))
+            #display.clear_output(wait=True)
             
             # test in every epoch:
             # validation loss
@@ -304,8 +306,7 @@ class DNN():
             out_val = out_val.cpu().detach().numpy()
             loss_val = criterion(out_val,Lval).data[0].cpu().detach().numpy()
         else:
-            loss_val = criterion(out_val,Lval).data[0]
-            
+            loss_val = criterion(out_val,Lval).data.numpy()
         if loss_val<best_loss:            
             uneye_weights = self.net.state_dict()
             save_weights = True
