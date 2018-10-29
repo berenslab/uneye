@@ -222,6 +222,9 @@ class DNN():
         key = ['out']
         save_weights = False
         getting_worse = 0
+
+        print('Training. Please wait.')
+        
         while epoch<=self.max_iter:
 
             # shuffle training data in each epoch:
@@ -257,7 +260,7 @@ class DNN():
             Loss_train.append(np.mean(loss_train)) #store training loss
             #plt.plot(Loss_train)
             #plt.title(str(epoch))
-            print('Training. Please wait.')
+            
             #print('Iteration: '+str(epoch)+'/'+str(self.max_iter))
             #display.clear_output(wait=True)
             
