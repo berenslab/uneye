@@ -307,8 +307,8 @@ class DNN():
         # added this to convert values to numpy in GPU setting: 
         if self.use_gpu:
             # convert from CUDA to cpu memory
-            out_val = out_val.cpu().detach().numpy()
-            loss_val = criterion(out_val,Lval).data[0].cpu().detach().numpy()
+            #out_val = out_val.cpu().detach()
+            loss_val = criterion(out_val,Lval).data.cpu().detach().numpy()
         else:
             loss_val = criterion(out_val,Lval).data.numpy()
         if loss_val<best_loss:            
