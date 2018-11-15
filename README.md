@@ -35,7 +35,7 @@ We provide a [docker](http://docker.com) container for platform-independent use.
 
 [back to start](#content)
 
-## <a name="installation">Installation:</a> [local](#local) [or with docker](#docker)
+## <a name="installation">Installation:</a> [local](#local) or with [docker](#docker)
 
 In the following, all commands written in boxes need to be entered into your terminal (search for it via "cmd" on Windows). 
  
@@ -89,6 +89,7 @@ Genral:
 	model.train(X,Y,Labels)
 	model.test(X,Y,Labels)
 	model.predict(X,Y)
+	model.crossvalidate
 	
 Generally, one first calls the network and can then apply different methods, as described in the module description below.
 
@@ -185,7 +186,7 @@ The uneye module contains the **DNN** class
                  lr=0.001, weights_name='weights',
                 classes=2,min_sacc_dist=1,
                  min_sacc_dur=6,augmentation=True,
-                 ks=5,mp=5)
+                 ks=5,mp=5,inf_correction=1.5,val_samples=30)
                 
    
    -----
@@ -211,6 +212,12 @@ augmentation: whether or not to use data augmentation for training, default: Tru
 ks: kernel size of convolution operations, default=5
 
 mp: size of max pooling operation, default=5
+
+inf_correction: float, value to replace Infs occuring after differential of input signal
+
+val_samples: int, number of validation samples (for early stopping criterion)
+    
+
 
 *** 
 	
@@ -280,6 +287,26 @@ Prediction: eye movement class prediction for each time bin, same shape as input
 
 Probability: softmax probability output of network, shape: {n_samples,classes,time) or (classes,time)}
 
+***
+### crossvalidate: 
+
+Implementation of K-fold cross-validation.
+
+	crossvalidate(self,X,Y,Labels,X_val,Y_val,Labels_val,Labels_test=None,K=10)
+
+Input parameters:
+
+X,Y : horizontal and vertical eye positions, {array-like, shape: {(nsamples, nbins) or (nbins)}
+
+Labels: array-like, shape: {(n_timepoints),(n_samples, n_timepoints)}, class labels in range [0 classes-1], fixation=0, saccades=1
+        
+X_val,Y_val: array-like, shape: {(n_timepoints),(n_samples, n_timepoints)}, additional horizontal and vertical eye positions in degree for early stopping criterion. Can be small.
+        
+Labels_val: array-like, shape: {(n_timepoints),(n_samples, n_timepoints)}, additional class labels in range [0 classes-1], fixation=0, saccades=1 for early stopping criterion. Can be small.
+        
+Labels_test: array-like, shape: {(n_timepoints),(n_samples, n_timepoints)}, if test Labels different from training labels (for training with missing labels only), optional
+        
+K: float, number of folds of cross validation
 
 [back to start](#content)
 
