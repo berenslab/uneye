@@ -12,8 +12,8 @@ import os
 def main(argv):
     
     try:
-        opts, args = getopt.getopt(argv, "m:x:y:l:c:w:f:",
-                               ["mode=","x=","y=","labels=","classes=","weights=","sampfreq="])
+        opts, args = getopt.getopt(argv, "m:x:y:l:w:f:t:v:",
+                               ["mode=","x=","y=","labels=","weights=","sampfreq=","ntrain=","nval="])
     except getopt.GetoptError:
         print('UnEye.py -x <xfile> -y <yfile>')
         sys.exit(2)
@@ -21,7 +21,8 @@ def main(argv):
     # default values:
     mode = 'predict' #default mode
     weights = 'weights'
-    classes = 2
+    ntrain = 0
+    nval = 0
     
     # Arguments
     for opt,arg in opts:
@@ -33,12 +34,14 @@ def main(argv):
             Y = arg
         elif opt in ('-l','--labels'):
             L = arg
-        elif opt in ('-c','--classes'):
-            classes = int(arg)
         elif opt in ('-w','--weights'):
             weights = arg   
         elif opt in ('-f','--sampfreq'):
-            sampfreq = int(arg)   
+            sampfreq = int(arg)
+        elif opt in ('-t','--ntrain'):
+            ntrain = int(arg)
+        elif opt in ('-v','--nval'):
+            nval = int(arg) 
 
 
     if mode=='hello':
@@ -77,17 +80,23 @@ def main(argv):
             X = np.reshape(X[:n_trials*trial_len],(n_trials,trial_len))
             Y = np.reshape(Y[:n_trials*trial_len],(n_trials,trial_len))
             Labels = np.reshape(Labels[:n_trials*trial_len],(n_trials,trial_len))
-            
+        
         # split data into training and test set (90% vs 10%)
+        if nval==0:
+            nval = 30
         randind = np.random.permutation(X.shape[0])
-        ntrain = int(X.shape[0]*0.9)
+        if ntrain==0:
+            ntrain = int(X.shape[0]*0.9)
+        else:
+            ntrain = ntrain+nval
         ntest = X.shape[0] - ntrain
         Xtrain,Ytrain,Ltrain = X[randind[:ntrain],:],Y[randind[:ntrain],:],Labels[randind[:ntrain],:]
         Xtest,Ytest,Ltest = X[randind[ntrain:],:],Y[randind[ntrain:],:],Labels[randind[ntrain:],:]
-        
+
+        print('Number of training samples:',Xtrain.shape[0]-nval)
+        print('Number of test samples:',ntest)
         print('Starting training. Please wait.')
-        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq,
-                        classes=classes)
+        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq,val_samples=nval)
 
         model.train(Xtrain,Ytrain,Ltrain)
         
@@ -134,8 +143,9 @@ def main(argv):
         elif X.endswith('mat'):
             Xarr,Yarr = io.loadmat(X)['X'],io.loadmat(Y)['Y']
                 
-        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq,classes=classes)        
+        model = uneye.DNN(weights_name=weights,sampfreq=sampfreq)        
         Prediction,Probability = model.predict(Xarr,Yarr)
+        classes = Probability.shape[1]
         
         # save output
         if type(X)==str:
