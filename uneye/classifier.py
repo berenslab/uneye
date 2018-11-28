@@ -36,9 +36,7 @@ class DNN():
     lr: float, learning rate, default=0.001
     
     weights_name: str, filename of weights to save or load, will automatically be stored and load in local folder 'training', default: 'weights'
-    
-    n_classes: int, number of classes to predict or present in ground truth, default=2
-    
+        
     min_sacc_dist: int, minimum distance between two saccades in ms for merging of saccades, default=1
     
     min_sacc_dur: int, minimum saccade duration in ms for removal of small events, default=6ms
@@ -52,8 +50,7 @@ class DNN():
     '''
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
-                classes=2,min_sacc_dist=1,
-                 min_sacc_dur=6,augmentation=True,
+                 min_sacc_dist=1,min_sacc_dur=6,augmentation=True,
                  ks=5,mp=5,inf_correction=1.5,val_samples=30):
         
         if max_iter<10:
@@ -62,12 +59,11 @@ class DNN():
         self.sampfreq = sampfreq
         self.lr = lr
         self.weights_name = weights_name
-        self.classes = classes
         self.min_sacc_dist = min_sacc_dist
         self.min_sacc_dur = min_sacc_dur
         self.augmentation = augmentation
-        self.net = UNet(classes,ks,mp)
         self.mp = mp
+        self.ks = ks
         self.use_gpu = torch.cuda.is_available()
         self.inf_correction = inf_correction
         self.val_samples = val_samples
@@ -89,8 +85,11 @@ class DNN():
         np.random.seed(seed)
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed) #fixed seed to control random data shuffling in each epoch
+
+        # determine number of classes
+        classes = len(np.unique(Labels[np.isnan(Labels)==False]))
+        self.net = UNet(classes,self.ks,self.mp)
         
-        classes = self.classes
         print('Number of classes:',classes)
         print('Using GPU:',self.use_gpu)
         
@@ -351,7 +350,19 @@ class DNN():
         
         '''
         n_dim = len(X.shape)
-        classes = self.classes
+
+        # determine number of classes
+        # check if weights_name is absolute path
+        if os.path.isabs(self.weights_name):
+            w_name = self.weights_name
+        else:
+            # output folder: local folder called "training"
+            out_folder = './training'
+            w_name = os.path.join(out_folder,self.weights_name)
+        w = torch.load(w_name)
+        classes = w['c7.weight'].shape[0]
+        self.net = UNet(classes,self.ks,self.mp)
+        
         if n_dim==1:
             X = np.atleast_2d(X)
             Y = np.atleast_2d(Y)
@@ -377,11 +388,7 @@ class DNN():
         V = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
         
         # load pretrained model
-        if os.path.isabs(self.weights_name):
-            weights = torch.load(self.weights_name)
-        else:
-            weights = torch.load(os.path.join('training',self.weights_name))
-        self.net.load_state_dict(weights)   
+        self.net.load_state_dict(w)   
         self.net.eval()
         
         # send to gpu if cuda enabled
@@ -470,7 +477,18 @@ class DNN():
             'off': offset difference in timebins for true positive saccades }
             
         '''
-        classes = self.classes
+        # determine number of classes
+        # check if weights_name is absolute path
+        if os.path.isabs(self.weights_name):
+            w_name = self.weights_name
+        else:
+            # output folder: local folder called "training"
+            out_folder = './training'
+            w_name = os.path.join(out_folder,self.weights_name)
+        w = torch.load(w_name)
+        classes = w['c7.weight'].shape[0]
+        self.net = UNet(classes,self.ks,self.mp)
+        
         n_dim = len(X.shape)
         if n_dim==1:
             X = np.atleast_2d(X)
@@ -497,11 +515,7 @@ class DNN():
         V = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
         
         # load pretrained model
-        if os.path.isabs(self.weights_name):
-            weights = torch.load(self.weights_name)
-        else:
-            weights = torch.load(os.path.join('training',self.weights_name))
-        self.net.load_state_dict(weights)   
+        self.net.load_state_dict(w)   
         self.net.eval()
         
         # send to gpu if cuda enabled
@@ -658,7 +672,8 @@ class DNN():
             Labels_val = np.reshape(Labels_val[:n_trials*trial_len],(n_trials,trial_len))
 
         n_samples,n_time = X.shape
-        classes = self.classes
+        classes = len(np.unique(Labels[np.isnan(Labels)==False]))
+        self.net = UNet(classes,self.ks,self.mp)
         
         Labels_mc = np.zeros((n_samples,n_time,classes))
         Labels_mc_val = np.zeros((Labels_val.shape[0],n_time,classes))
