@@ -96,11 +96,10 @@ Generally, one first calls the network and can then apply different methods, as 
 ### <a name="jupyter">Jupyter Notebook</a> 
 
 An example jupyter notebook is provided in this repository (**UnEye.ipynb**).
-
-Depending on whether you use U'n'Eye with the docker container or locally, do the following to use the jupyter notebook:
+Clone the repository as described above (or alternatively download the files). Put the file **UnEye.ipynb** into the folder where you want to work. Depending on whether you use U'n'Eye with the docker container or locally, enter the following into your command window to use the jupyter notebook (replace YourWorkingDirectory)
 
 #### A) Docker
-Clone the repository as described above (or alternatively download the files). Put the file **UnEye.ipynb** into the folder where you want to work. Than open your command window and enter the following: (replace YourWorkingDirectory)
+
 
     cd /YourWorkingDirectory
     docker run -it --rm -p 6688:8888 --name uneye -v $(pwd)/.:/home/jovyan mebellet/uneye:v-0.2
@@ -108,7 +107,6 @@ Clone the repository as described above (or alternatively download the files). P
 Then open your web browser. Enter "localhost:6688" as URL. Then you will be asked for a token. This token appeared when you entered the command above. It looks something like this: http://6688:8888/?token=775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1 . Copy the token (in this case 775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1) and log in. Now you should see the content of your folder in the web browser.
 
 #### B) Local
-
 
 	alias python=python3
 	cd /YourWorkingDirectory
@@ -134,8 +132,6 @@ Input arguments (*=necessary):
 **labels**(*for training): filename of the eye movement ground truth labels (.csv or .mat file)
 
 **sampfreq***: sampling frequency of the data (Hz)
-
-**classes**: number of target classes to predict, default: 2
 
 **weightsname**: ouput/input filename of trained weights
 
