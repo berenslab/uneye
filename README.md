@@ -73,7 +73,7 @@ Note: If the git command does not work under Mac OS, first run
 
 **1)** Install docker:
 
-for [Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows), [Mac](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows) or [Linux](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows)
+for [Windows](https://docs.docker.com/docker-for-windows/install/#download-docker-for-windows), [Mac](https://store.docker.com/editions/community/docker-ce-desktop-mac) or [Ubuntu](https://docs.docker.com/install/linux/docker-ce/ubuntu/#set-up-the-repository)
 
 **2)** Download the docker image that contains U'n'Eye, pytorch and all other python packages you need. This step will take some time.
 
@@ -124,6 +124,7 @@ With the .py file **UnEye.py** you can use the package from the command line. So
 ***
 
 Input arguments (*=necessary):
+**mode***: train or predict
 
 **x***: filename of the horizontal eye position (.csv or .mat file)
 
@@ -133,7 +134,7 @@ Input arguments (*=necessary):
 
 **sampfreq***: sampling frequency of the data (Hz)
 
-**weightsname**: ouput/input filename of trained weights
+**weights**: ouput/input filename of trained weights
 
 ***
 
@@ -149,7 +150,7 @@ first run the following, depending on whether you use the Docker container or wo
 
 
 
-Now you can either **train** a new network or **predict** eye movements from new data:
+Now, stay in the command window. You can from here either **train** a new network or **predict** eye movements from new data:
 
 #### Training
 
@@ -181,8 +182,7 @@ The uneye module contains the **DNN** class
 
 	model = uneye.DNN(max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
-                classes=2,min_sacc_dist=1,
-                 min_sacc_dur=6,augmentation=True,
+                min_sacc_dist=1,min_sacc_dur=6,augmentation=True,
                  ks=5,mp=5,inf_correction=1.5,val_samples=30)
                 
    
@@ -197,8 +197,6 @@ sampfreq: sampling frequency of the eye tracker (Hz)
 lr: learning rate of the network training 
 
 weights_name: input/output filename for trained network weights
-
-classes: number of target classes to predict
 
 min*_*sacc_dist: minimum distance between two saccades in ms for merging of saccades
 
