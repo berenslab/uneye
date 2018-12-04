@@ -83,7 +83,7 @@ for [Windows](https://docs.docker.com/docker-for-windows/install/#download-docke
 [back to start](#content)
 
 ## <a name="usage">Usage</a> 
-Genral:
+General:
 
 	model = uneye.DNN(sampfreq= sampling_frequency )
 	model.train(X,Y,Labels)
