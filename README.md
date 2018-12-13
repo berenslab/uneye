@@ -6,11 +6,13 @@
 Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
 ********
 ## Latest Updates:
+- [web service](http://uneye.berenslab.org) available
 - kernel size of convolution and max pooling operations now definable by the user (thus longer or shorter time windows will be seen by U'n'Eye)
 
 ------------------
 
 ### <i>Train your own eye movement detection network in 10 minutes and label your data. [Get started now](#installation)</i>
+### <i>Try out our [web service](http://uneye.berenslab.org).
 
 ## <a name="content">Content</a> 
 - [Overview](#overview)
@@ -31,15 +33,16 @@ We provide network weights that were learned on different datasets, described in
 
 **Users can train their own network to obtain optimal performance.** Please see the module description below and the example jupyter notebook **UnEye.ipynb** for instructions.
 
-We provide a [docker](http://docker.com) container for platform-independent use. 
+We provide a [docker](http://docker.com) container for platform-independent use that is recommended for Windows users.
+
 
 [back to start](#content)
 
 ## <a name="installation">Installation:</a> [local](#local) or with [docker](#docker)
 
-In the following, all commands written in boxes need to be entered into your terminal (search for it via "cmd" on Windows). 
+In the following, all commands written in boxes need to be entered into your terminal. 
  
-### <a name="local">Local:</a> install the python package
+### <a name="local">Local:</a> install the python package (Mac & Linux)
 
 **1)** Via the terminal, check if you have python3 installed
 
@@ -55,10 +58,6 @@ If not found, download and install python3 [here](https://www.python.org/downloa
 For Mac:
 
 	pip install ./ -r ./requirements_mac.txt
-	
-For Windows (7,10 or greater):
-
-	pip install ./ -r ./requirements_wind.txt
 	
 For Linux:
 
@@ -104,7 +103,9 @@ Clone the repository as described above (or alternatively download the files). P
     cd /YourWorkingDirectory
     docker run -it --rm -p 6688:8888 --name uneye -v $(pwd)/.:/home/jovyan mebellet/uneye:v-0.2
 
-Then open your web browser. Enter "localhost:6688" as URL. Then you will be asked for a token. This token appeared when you entered the command above. It looks something like this: http://6688:8888/?token=775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1 . Copy the token (in this case 775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1) and log in. Now you should see the content of your folder in the web browser.
+<b>!! Important:</b> Now, don't just copy the output of the into your browser, but do the following:
+
+Open your web browser. Enter "localhost:6688" as URL. Then you will be asked for a token. This token appeared when you entered the command above. It looks something like this: http://6688:8888/?token=775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1 . Copy the token (in this case 775c758f58cdc82bf6ddf51a112228f4dd4229c5b3847bb1) and log in. Now you should see the content of your folder in the web browser.
 
 #### B) Local
 
@@ -162,7 +163,7 @@ The trained weights will be saves to _training/weights_ or to _training/weightsn
 
 #### Prediction
 
-	python UnEye.py -m train -x data/x_name -y data/y_name -f sampfreq
+	python UnEye.py -m predict -x data/x_name -y data/y_name -f sampfreq
 
 Note: This will automatically use the weights saved under _training/weights_ unless you specify your weightsname by giving the input argument _-w training/weightsname_ .
 
