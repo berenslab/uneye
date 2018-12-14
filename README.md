@@ -53,7 +53,11 @@ If not found, download and install python3 [here](https://www.python.org/downloa
 
 	git clone https://github.com/berenslab/uneye
 	alias pip=pip3
-**3)** Now the last step: install the package. Use one of the following commands, depending on your platform:
+**3)** Now the last step: go into the new uneye folder in your GitHub folder and install the package. In this example on a Mac, the GitHub folder is located in the Documents folder of the user. Find out the absolute path of that folder and type the following:
+
+	cd /Users/yourusername/Documents/GitHub/uneye
+	
+Then, use one of the following commands for installation, depending on your platform:
 
 For Mac:
 
