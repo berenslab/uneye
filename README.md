@@ -49,7 +49,7 @@ In the following, all commands written in boxes need to be entered into your ter
 	python3 --version
 If not found, download and install python3 [here](https://www.python.org/downloads/release/python-364/). 
 
-**2)** Clone the GitHub repository into your local directory and make sure you are using pip3.
+**2)** Clone the GitHub repository into your local directory and make sure you are using pip3 (see below for possible error message on Mac).
 
 	git clone https://github.com/berenslab/uneye
 	alias pip=pip3
@@ -67,6 +67,7 @@ Note: If the git command does not work under Mac OS, first run
 
 	xcode-select --install
 
+and install the necessary tools.
 
 ### <a name="docker">Docker:</a> the platform independent solution
 
