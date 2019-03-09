@@ -47,11 +47,14 @@ class DNN():
 
     val_samples: int, number of validation samples (for early stopping criterion)
     
+    doDiff: bool, whether input is differentiated or not; default: True
+
     '''
     def __init__(self, max_iter=500, sampfreq=1000,
                  lr=0.001, weights_name='weights',
                  min_sacc_dist=1,min_sacc_dur=6,augmentation=True,
-                 ks=5,mp=5,inf_correction=1.5,val_samples=30):
+                 ks=5,mp=5,inf_correction=1.5,val_samples=30,
+                 doDiff=True):
         
         if max_iter<10:
             max_iter = 10
@@ -67,6 +70,7 @@ class DNN():
         self.use_gpu = torch.cuda.is_available()
         self.inf_correction = inf_correction
         self.val_samples = val_samples
+        self.doDiff = doDiff
 
     def train(self,X,Y,Labels,seed=1):
         '''
@@ -152,39 +156,45 @@ class DNN():
 
                           
         n_training = Xtrain.shape[0]
-        
-        # Velocity:
-        # training data
-        Xdiff = np.diff(Xtrain,axis=-1)
-        Xdiff = np.concatenate((np.zeros((n_training,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = self.inf_correction
-        Xdiff[np.isnan(Xdiff)] = 0
-        Ydiff = np.diff(Ytrain,axis=-1)
-        Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = self.inf_correction
-        Ydiff = np.concatenate((np.zeros((n_training,1)),Ydiff),1)  
+
+        if self.doDiff==True:
+            # Velocity:
+            # training data
+            Xdiff = np.diff(Xtrain,axis=-1)
+            Xdiff[np.isinf(Xdiff)] = self.inf_correction
+            Xdiff[np.isnan(Xdiff)] = 0
+            Xin_train = np.concatenate((np.zeros((n_training,1)),Xdiff),1)
+            Ydiff = np.diff(Ytrain,axis=-1)
+            Ydiff[np.isnan(Ydiff)] = 0
+            Ydiff[np.isinf(Ydiff)] = self.inf_correction
+            Yin_train = np.concatenate((np.zeros((n_training,1)),Ydiff),1)
+
+            # validation data
+            Xdiff = np.diff(Xval,axis=-1)
+            Xdiff[np.isinf(Xdiff)] = self.inf_correction
+            Xdiff[np.isnan(Xdiff)] = 0
+            Xin_val = np.concatenate((np.zeros((n_validation,1)),Xdiff),1)
+            Ydiff = np.diff(Yval,axis=-1)
+            Ydiff[np.isnan(Ydiff)] = 0
+            Ydiff[np.isinf(Ydiff)] = self.inf_correction
+            Yin_val = np.concatenate((np.zeros((n_validation,1)),Ydiff),1)
+        else:
+            # use input as it is
+            Xin_train = Xtrain
+            Yin_train = Ytrain
+            Xin_val = Xval
+            Yin_val = Yval
+            
         # input matrix:
-        V = np.tile((Xdiff,Ydiff),1)
-        V = np.swapaxes(np.swapaxes(V,0,1),1,2) 
-        # torch Variable:
-        Vtrain = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
+        Vtrain = np.tile((Xin_train,Yin_train),1)
+        Vtrain = np.swapaxes(np.swapaxes(Vtrain,0,1),1,2)
+        Vval = np.tile((Xin_val,Yin_val),1)
+        Vval = np.swapaxes(np.swapaxes(Vval,0,1),1,2) 
+        # torch Variables:
+        Vtrain = Variable(torch.FloatTensor(Vtrain).unsqueeze(1),requires_grad=False)
         Ltrain = np.swapaxes(Ltrain,1,2)
         Ltrain = Variable(torch.FloatTensor(Ltrain.astype(float)),requires_grad=False)
-        
-        # validation data
-        Xdiff = np.diff(Xval,axis=-1)
-        Xdiff = np.concatenate((np.zeros((n_validation,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = self.inf_correction
-        Xdiff[np.isnan(Xdiff)] = 0
-        Ydiff = np.diff(Yval,axis=-1)
-        Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = self.inf_correction
-        Ydiff = np.concatenate((np.zeros((n_validation,1)),Ydiff),1)  
-        # input matrix:
-        V = np.tile((Xdiff,Ydiff),1)
-        V = np.swapaxes(np.swapaxes(V,0,1),1,2) 
-        # torch Variable:
-        Vval = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
+        Vval = Variable(torch.FloatTensor(Vval).unsqueeze(1),requires_grad=False)
         Lval = np.swapaxes(Lval,1,2)
         Lval = Variable(torch.FloatTensor(Lval.astype(float)),requires_grad=False)
         
@@ -371,20 +381,25 @@ class DNN():
         
         n_samples,n_time = X.shape
 
-         # differentiated signal:
-        Xdiff = np.diff(X,axis=-1)
-        Xdiff = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = self.inf_correction
-        Xdiff[np.isnan(Xdiff)] = 0
-        Ydiff = np.diff(Y,axis=-1)
-        Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = self.inf_correction
-        Ydiff = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
-        
+        if self.doDiff==True:
+            # Velocity:
+            Xdiff = np.diff(X,axis=-1)
+            Xdiff[np.isinf(Xdiff)] = self.inf_correction
+            Xdiff[np.isnan(Xdiff)] = 0
+            Xin = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
+            Ydiff = np.diff(Y,axis=-1)
+            Ydiff[np.isnan(Ydiff)] = 0
+            Ydiff[np.isinf(Ydiff)] = self.inf_correction
+            Yin = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
+
+        else:
+            # use input as it is
+            Xin = X
+            Yin = Y
+            
         # input matrix:
-        V = np.tile((Xdiff,Ydiff),1)
+        V = np.tile((Xin,Yin),1)
         V = np.swapaxes(np.swapaxes(V,0,1),1,2)
-        # torch Variable:
         V = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
         
         # load pretrained model
@@ -498,20 +513,25 @@ class DNN():
         
         n_samples,n_time = X.shape
    
-        # differentiated signal:
-        Xdiff = np.diff(X,axis=-1)
-        Xdiff = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
-        Xdiff[np.isinf(Xdiff)] = self.inf_correction
-        Xdiff[np.isnan(Xdiff)] = 0
-        Ydiff = np.diff(Y,axis=-1)
-        Ydiff[np.isnan(Ydiff)] = 0
-        Ydiff[np.isinf(Ydiff)] = self.inf_correction
-        Ydiff = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
-        
+        if self.doDiff==True:
+            # Velocity:
+            Xdiff = np.diff(X,axis=-1)
+            Xdiff[np.isinf(Xdiff)] = self.inf_correction
+            Xdiff[np.isnan(Xdiff)] = 0
+            Xin = np.concatenate((np.zeros((n_samples,1)),Xdiff),1)
+            Ydiff = np.diff(Y,axis=-1)
+            Ydiff[np.isnan(Ydiff)] = 0
+            Ydiff[np.isinf(Ydiff)] = self.inf_correction
+            Yin = np.concatenate((np.zeros((n_samples,1)),Ydiff),1)
+
+        else:
+            # use input as it is
+            Xin = X
+            Yin = Y
+            
         # input matrix:
-        V = np.tile((Xdiff,Ydiff),1)
+        V = np.tile((Xin,Yin),1)
         V = np.swapaxes(np.swapaxes(V,0,1),1,2)
-        # torch Variable:
         V = Variable(torch.FloatTensor(V).unsqueeze(1),requires_grad=False)
         
         # load pretrained model
