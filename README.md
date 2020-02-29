@@ -3,7 +3,7 @@
 ![alt text](https://raw.githubusercontent.com/berenslab/uneye/master/logo.jpeg?token=AcbomYi_PxlSK_8ua5zR3m60F5DL5UQJks5bPkWrwA%3D%3D)
 
 # U'n'Eye: Deep neural network for the detection of saccades and other eye movements
-Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep neural networks**
+Bellet et al., **Human-level saccade and microsaccade detection with deep neural networks**, Journal of Neurophysiology 2019
 ********
 ## Latest Updates:
 - [web service](http://uneye.berenslab.org) available
@@ -27,7 +27,7 @@ Bellet et al. 2018, **Human-level saccade and microsaccade detection with deep n
 U'n'Eye is a Python 3 package, that uses [PyTorch](http://pytorch.org) for the neural network implementation.
 
 For a description of the algorithm, see [our preprint](https://www.biorxiv.org/content/early/2018/06/29/359018).
-For any questions regarding this repository please contact [marie-estelle.bellet@student.uni-tuebingen.de](mailto:marie-estelle.bellet@student.uni-tuebingen.de) or [philipp.berens@uni-tuebingen.de](philipp.berens@uni-tuebingen.de).
+For any questions regarding this repository please contact [marie.bellet@cea.fr](mailto:marie.bellet@cea.frs) or [philipp.berens@uni-tuebingen.de](philipp.berens@uni-tuebingen.de).
 
 We provide network weights that were learned on different datasets, described in [the paper](https://www.biorxiv.org/content/early/2018/06/29/359018). The weights can be found in the folder **training** and the corresponding datasets will be available in the folder **data** after publication. For instructions on how to use pretrained networks, please see below.
 
